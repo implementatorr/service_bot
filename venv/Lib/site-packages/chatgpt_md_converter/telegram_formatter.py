@@ -1,0 +1,100 @@
+import re
+
+from .converters import convert_html_chars, split_by_tag
+from .extractors import extract_and_convert_code_blocks, reinsert_code_blocks
+from .formatters import combine_blockquotes
+from .helpers import remove_blockquote_escaping
+
+
+def extract_inline_code_snippets(text: str):
+    """
+    Extracts inline code (single-backtick content) from the text,
+    replacing it with placeholders, returning modified text and a dict of placeholders -> code text.
+    This ensures characters like '*' or '_' inside inline code won't be interpreted as Markdown.
+    """
+    placeholders = []
+    code_snippets = {}
+    inline_code_pattern = re.compile(r"`([^`]+)`")
+
+    def replacer(match):
+        snippet = match.group(1)
+        placeholder = f"INLINECODEPLACEHOLDER{len(placeholders)}"
+        placeholders.append(placeholder)
+        code_snippets[placeholder] = snippet
+        return placeholder
+
+    new_text = inline_code_pattern.sub(replacer, text)
+    return new_text, code_snippets
+
+
+def telegram_format(text: str) -> str:
+    """
+    Converts markdown in the provided text to HTML supported by Telegram.
+    """
+
+    # Step 0: Combine blockquotes
+    text = combine_blockquotes(text)
+
+    # Step 1: Convert HTML reserved symbols
+    text = convert_html_chars(text)
+
+    # Step 2: Extract and convert triple-backtick code blocks first
+    output, triple_code_blocks = extract_and_convert_code_blocks(text)
+
+    # Step 2.5: Extract inline code snippets (single backticks) so they won't be parsed as italics, etc.
+    output, inline_code_snippets = extract_inline_code_snippets(output)
+
+    # Step 3: Escape HTML special characters in the output text (for non-code parts)
+    # We do NOT want to escape what's inside placeholders here, only what's outside code placeholders.
+    output = output.replace("<", "&lt;").replace(">", "&gt;")
+
+    # Convert headings (H1-H6)
+    output = re.sub(r"^(#{1,6})\s+(.+)$", r"<b>\2</b>", output, flags=re.MULTILINE)
+
+    # Convert unordered lists (do this before italic detection so that leading '*' is recognized as bullet)
+    output = re.sub(r"^(\s*)[\-\*]\s+(.+)$", r"\1• \2", output, flags=re.MULTILINE)
+
+    # Remove this old inline code replacement — now handled by extract_inline_code_snippets()
+    # output = re.sub(r"`(.*?)`", r"<code>\1</code>", output)
+
+    # Nested Bold and Italic
+    output = re.sub(r"\*\*\*(.*?)\*\*\*", r"<b><i>\1</i></b>", output)
+    output = re.sub(r"\_\_\_(.*?)\_\_\_", r"<u><i>\1</i></u>", output)
+
+    # Process markdown for bold (**), underline (__), strikethrough (~~)
+    output = split_by_tag(output, "**", "b")
+    output = split_by_tag(output, "__", "u")
+    output = split_by_tag(output, "~~", "s")
+
+    # Custom approach for single-asterisk italic
+    italic_pattern = re.compile(
+        r"(?<![A-Za-z0-9])\*(?=[^\s])(.*?)(?<!\s)\*(?![A-Za-z0-9])",
+        re.DOTALL
+    )
+    output = italic_pattern.sub(r"<i>\1</i>", output)
+
+    # Process single underscore-based italic
+    output = split_by_tag(output, "_", "i")
+
+    # Remove storage links (Vector storage placeholders like 【4:0†source】)
+    output = re.sub(r"【[^】]+】", "", output)
+
+    # Convert Markdown links/images to <a href="">…</a>
+    link_pattern = r"(?:!?)\[((?:[^\[\]]|\[.*?\])*)\]\(([^)]+)\)"
+    output = re.sub(link_pattern, r'<a href="\2">\1</a>', output)
+
+    # Step 3.5: Reinsert inline code snippets, escaping special chars in code content
+    for placeholder, snippet in inline_code_snippets.items():
+        escaped_snippet = snippet.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        output = output.replace(placeholder, f"<code>{escaped_snippet}</code>")
+
+    # Step 4: Reinsert the converted triple-backtick code blocks
+    output = reinsert_code_blocks(output, triple_code_blocks)
+
+    # Step 5: Remove blockquote escaping
+    output = remove_blockquote_escaping(output)
+
+    # Clean up multiple consecutive newlines, but preserve intentional spacing
+    output = re.sub(r"\n{3,}", "\n\n", output)
+
+    return output.strip()
