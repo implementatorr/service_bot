@@ -1,0 +1,56 @@
+{
+    "channel": [
+        {
+            "id": "@lolololowwwwww",
+            "language": "English",
+            "tags": [
+                {
+                    "tag": "business",
+                    "active": 1
+                },
+                {
+                    "tag": "entertainment",
+                    "active": 0
+                },
+                {
+                    "tag": "general",
+                    "active": 1
+                },
+                {
+                    "tag": "health",
+                    "active": 0
+                },
+                {
+                    "tag": "technology",
+                    "active": 1
+                },
+                {
+                    "tag": "science",
+                    "active": 1
+                },
+                {
+                    "tag": "sports",
+                    "active": 0
+                }
+            ]
+        }
+    ],
+    "settings": {
+        "message_length": "30-40",
+        "hashtags_count": "5",
+        "interval": "40",
+        "image": "No",
+        "tags": "No",
+        "quiet_hours": {
+            "start": "22",
+            "end": 6
+        },
+        "headline": "8-10",
+        "admin": "2222222222",
+        "send": "Yes",
+        "advertisement": {
+            "name": "lololo",
+            "url": "https://t.me/Gpt_modeBot"
+        }
+    }
+}

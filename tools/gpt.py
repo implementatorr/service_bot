@@ -39,14 +39,10 @@ def get_gpt4_response(prompt: str, text: str, api_key: str) -> str:
     except requests.exceptions.RequestException as e:
         # Логируем ошибки с уровнями ERROR или CRITICAL
         logger.error(f"Request failed: {str(e)}")
-        print(f"Request failed: {str(e)}")
         return f"Error: {str(e)}"
 
 # Пример использования функции
 def mainGptAPI(text: str = None, prompt: str = None):
-    # API ключ OpenAI
     api_key = os.getenv('OPENAI_API_KEY')  # Замените на свой API-ключ
-    # print(api_key)
-    # Получаем ответ от GPT-4
     response = get_gpt4_response(prompt, text, api_key)
     return response
