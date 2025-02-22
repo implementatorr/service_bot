@@ -70,19 +70,22 @@ async def send_periodic_messages(bot: Bot):
             source_link = "http://" + url.split("//")[1].split("/")[0]
             tags_flag = sm.get_setting('settings.tags')
             if tags_flag.lower() == 'yes':
-                tags = f'🔖 {tags}'
+                tags = f'\n\n🔖 {tags}\n\n'
             else:
-                tags = ''
-                
+                tags = '\n\n'
+
             _description = tf(
                 f'⚡️[**{headline}**]({url})\n\n'
-                f'{description}...[**continue**]({url})\n\n'
-                f'{tags}\n\n'
+                f'{description}...[**continue**]({url})'
+                f'{tags}'
                 f'▫️ **Source** : [**{source}**]({source_link})\n'
                 f'▫️ **Our bot** : [**{ad_name}**]({ad_link})'
             )
             image_flag = sm.get_setting('settings.image')
 
+            disable_preview_flag = sm.get_setting('settings.disable_web_page_preview')
+            des_flag = True if disable_preview_flag.lower() == 'yes' else False
+            
             if image_flag.lower() == 'yes':
                 await bot.send_photo(
                     chat_id=channel_username, 
@@ -94,7 +97,8 @@ async def send_periodic_messages(bot: Bot):
                 await bot.send_message(
                     chat_id=channel_username, 
                     text=_description,
-                    parse_mode="HTML"
+                    parse_mode="HTML", 
+                    disable_web_page_preview=des_flag
                 )    
 
             random_delay = random.randint(interval - 5, interval + 5)

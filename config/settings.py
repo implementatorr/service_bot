@@ -97,8 +97,8 @@ settings_dict = {
     "Headline length": "settings.headline",
     "Tags": "settings.tags",
     "Image": "settings.image",        
+    "Disable preview": "settings.disable_web_page_preview",
 }
-
 
 # if __name__=='__main__':
 #     sm = SettingsManager()

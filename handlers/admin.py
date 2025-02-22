@@ -38,6 +38,7 @@ def get_settings_text(sm: SettingsManager):
         f"`**Send:**` {'✅' if settings['send'].lower() == 'yes' else '❌'}\n"
         f"`**Tags:**` {'✅' if settings['tags'].lower() == 'yes' else '❌'}\n"
         f"`**Image:**` {'✅' if settings['image'].lower() == 'yes' else '❌'}\n\n"
+        f"`**Disable preview:**` {'✅' if settings['image'].lower() == 'yes' else '❌'}\n\n"
         f"`**Admin:**` {settings['admin']}\n"
     )
     return text

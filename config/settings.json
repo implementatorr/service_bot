@@ -1,7 +1,7 @@
 {
     "channel": [
         {
-            "id": "@lolololowwwwww",
+            "id": "@techinpulse",
             "language": "English",
             "tags": [
                 {
@@ -39,8 +39,9 @@
         "message_length": "30-40",
         "hashtags_count": "5",
         "interval": "40",
-        "image": "No",
+        "image": "Yes",
         "tags": "No",
+        "disable_web_page_preview": "No",
         "quiet_hours": {
             "start": "22",
             "end": 6
