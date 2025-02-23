@@ -102,7 +102,8 @@ async def send_periodic_messages(bot: Bot):
                 )    
 
             random_delay = random.randint(interval - 5, interval + 5)
-            await asyncio.sleep(random_delay)
+            logger.info(f"Message sent. Waiting for {random_delay * 60} minutes.")
+            await asyncio.sleep(random_delay * 60)
 
         except Exception as e:
             logger.error(f"Error occurred while sending message: {e}")

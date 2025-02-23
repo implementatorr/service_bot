@@ -6,7 +6,7 @@
             "tags": [
                 {
                     "tag": "business",
-                    "active": 1
+                    "active": 0
                 },
                 {
                     "tag": "entertainment",
@@ -50,8 +50,8 @@
         "admin": "2222222222",
         "send": "Yes",
         "advertisement": {
-            "name": "lololo",
-            "url": "https://t.me/Gpt_modeBot"
+            "name": "ChatGPT",
+            "url": "https://t.me/ChatGPTmeBot"
         }
     }
 }
