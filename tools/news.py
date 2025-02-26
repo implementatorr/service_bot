@@ -3,7 +3,10 @@ import logging
 from dotenv import load_dotenv
 from newsapi.newsapi_client import NewsApiClient
 import random as rnd
-from config.settings import SettingsManager
+from config.settings import tech_terms
+from pprint import pprint
+from datetime import datetime, timedelta
+import random
 # Загрузка переменных окружения
 load_dotenv()
 
@@ -11,87 +14,101 @@ load_dotenv()
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger()
 
-# Инициализация NewsApiClient с ключом API
-newsapi = NewsApiClient(api_key='fe2f50673b4d43b0a07fd93ce68708f8')
 
-def get_world_news(topic, language='en'):
+def get_world_news(language='en'):
     """
     Функция для получения мировых новостей по заданной теме с ограничением по количеству статей.
     
-    :param topic: Тема для поиска новостей.
     :param language: Язык новостей (по умолчанию английский).
     :return: Список статей.
     """
     try:
-        # Логируем успешный запуск
-        logger.info(f"Fetching news for topic: {topic} in {language} language.")
-        
-        # Получаем новости по теме с использованием get_top_headlines
-        top_headlines = newsapi.get_top_headlines(category=topic, 
-                                                  language=language)
+        date_one_day_ago = (datetime.now() - timedelta(days=4)).strftime("%Y-%m-%d")
+        lang_texch = tech_terms.get(language)
+        print(lang_texch)
 
-        # Проверяем, есть ли данные в ответе
-        if 'articles' not in top_headlines or not top_headlines['articles']:
-            logger.warning(f"No articles found for the topic: {topic}")
-            return []
-        
-        # Извлекаем статьи из ответа
-        articles = top_headlines['articles']
-        return articles
+        while True:
+            random_token = random.choice(['NEWS_API2', 'NEWS_API3'])
+
+            # Инициализация NewsApiClient с ключом API
+            TOKEN = os.getenv(random_token)
+            print(TOKEN)
+            newsapi = NewsApiClient(api_key=TOKEN)
+            topic = random.choice(lang_texch)  # Use random.choice instead of rnd.choice
+
+            # Логируем успешный запуск
+            logger.info(f"Fetching news for topic: {topic} in {language} language.")
+            
+            # Получаем новости по теме с использованием get_everything
+            news_data = newsapi.get_everything(
+                q=topic,  # Ключевые слова или фраза для поиска как в заголовке, так и в теле статьи.
+                language=language,  # Двухбуквенный код языка для поиска новостей
+                from_param=date_one_day_ago,  # Дата и время, начиная с которых будут искаться статьи.
+                page_size=70,
+                sort_by='popularity'  # Количество статей, которые нужно вернуть на одну страницу. Максимум — 100.
+            )
+            
+            if len(news_data['articles']) > 5 and news_data['status'] == 'ok':
+                break
+            else:
+                logger.warning(f"No articles found for the topic: {topic}, len: {len(news_data['articles'])}")
+
+        logger.info(f"Successfully fetched news for topic: {topic} in {language} language.")    
+        return news_data['articles']
     
     except Exception as e:
-        # Логируем ошибки
         logger.error(f"Error occurred while fetching news: {e}")
         return []
 
 
 # Пример использования функции
-def mainNewsapi():
-    sm = SettingsManager()
-
-    tags_list = []
-    settings_topics = sm.get_setting('channel')[0]['tags']
-    for tag in settings_topics:
-        if tag['active'] == 1:  # Check if the tag is active
-            tags_list.append(tag['tag'])
-    topic = rnd.choice(tags_list)  # Тема для поиска 
-    
-    # Логируем начало получения новостей
-    logger.info(f"Starting to fetch news on topic: {topic}")
+def mainNewsapi(language='en'):
+    logger.info(f"Starting to fetch news wthi language: {language}.")
     
     # Получаем новости
-    news = get_world_news(topic)
+    news = get_world_news(language)
     news_data = {}
-    
     if news:
+        # Обрабатываем каждую статью
         for page, article in enumerate(news, 1):
-            # Извлекаем данные статьи
-            title = article.get('title')
-            description = article.get('description')
-            url = article.get('url')
-            url_image = article.get('urlToImage')
-            content = article.get('content')
-            source = article.get('source')
 
-            # Проверка данных
-            if title and description and url and url_image and content and source:
-                news_data[page] = {
-                    'title': title,
-                    'description': description,
-                    'url': url,
-                    'url_image': url_image,
-                    'content': content,
-                    'source': source 
-                }
-            else:
-                logger.warning(f"Incomplete data for article {page}, skipping it.")
+            if isinstance(article, dict):
+                # Извлекаем данные статьи
+                title = article.get('title')
+                description = article.get('description')
+                url = article.get('url')
+                url_image = article.get('urlToImage')
+                content = article.get('content')
+                source = article.get('source', {}).get('name')
+
+                # Проверка данных
+                if title and description and url and url_image and content and source:
+                    news_data[page] = {
+                        'title': title,
+                        'description': description,
+                        'url': url,
+                        'url_image': url_image,
+                        'content': content,
+                        'source': source 
+                    }
+                    
+                else:
+                    logger.warning(f"Incomplete data for article {page}, skipping it.")
     else:
-        logger.warning("No news found.")
+        logger.warning(f"No news found, language: {language}.")
     
-    logger.info("News fetching complete.")
+    logger.info(f"News fetching complete, language: {language}.")
     return news_data
 
- 
+
+
+
+
+
+
+# if __name__ == "__main__":
+#     news = mainNewsapi(language='de')
+#     print(len(news))   
 
              
 

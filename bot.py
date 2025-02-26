@@ -47,13 +47,13 @@ async def main() -> None:
         commands=private_commands, scope=types.BotCommandScopeAllPrivateChats()
     )
 
-    # await get_last_message(client=client)
+
 
     await asyncio.gather(
         dp.start_polling(bot),
         send_periodic_messages(bot),  # Запуск функции отправки сообщений   
     )
-    # await client.disconnect()
+
 
 if __name__ == "__main__":
     try:

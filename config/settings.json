@@ -1,53 +1,23 @@
 {
     "channel": [
         {
-            "id": "@techinpulse",
-            "language": "English",
-            "tags": [
-                {
-                    "tag": "business",
-                    "active": 0
-                },
-                {
-                    "tag": "entertainment",
-                    "active": 0
-                },
-                {
-                    "tag": "general",
-                    "active": 1
-                },
-                {
-                    "tag": "health",
-                    "active": 0
-                },
-                {
-                    "tag": "technology",
-                    "active": 1
-                },
-                {
-                    "tag": "science",
-                    "active": 1
-                },
-                {
-                    "tag": "sports",
-                    "active": 0
-                }
-            ]
+            "id": -1002449814158,
+            "language": "English"         
         }
     ],
     "settings": {
-        "message_length": "30-40",
+        "message_length": "25-55",
         "hashtags_count": "5",
         "interval": "40",
         "image": "Yes",
         "tags": "No",
         "disable_web_page_preview": "No",
         "quiet_hours": {
-            "start": "22",
-            "end": 6
+            "start": "23",
+            "end": "6"
         },
         "headline": "8-10",
-        "admin": "2222222222",
+        "admin": "288657881",
         "send": "Yes",
         "advertisement": {
             "name": "ChatGPT",
